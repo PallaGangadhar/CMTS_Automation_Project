@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{%block content%}
+
+<h1>Regression detail Page</h1>
+
+<div class="container">
+        <table class="table table-bordered mt-2 table_border" id="tc_report">
+            <thead>
+              <tr>
+                <th scope="col" class="td_text_center">Regression Name</th>
+                <th scope="col" class="td_text_center" >Pass TC</th>
+                <th scope="col" class="td_text_center">Fail TC</th>
+                <th scope="col" class="td_text_center">No Run TC</th>
+                <th scope="col" class="td_text_center">Total TC</th>
+                <th scope="col" class="td_text_center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for reg_details in regression_details %}
+                <tr>
+                    <td class="td_text_center">{{reg_details[1]}}</td>
+                    <td class="td_text_center">{{reg_details[2]}}</td>
+                    <td class="td_text_center">{{reg_details[3]}}</td>
+                    <td class="td_text_center">{{reg_details[4]}}</td>
+                    <td class="td_text_center">{{reg_details[5]}}</td>
+                    <td class="td_text_center">
+                      {% if reg_details[6] == 'PASS' %}
+                          <button class="btn btn-success">
+                            <a href="view_tc_logs_details/{{reg_details[0]}}" class="hyperlink_text">PASS</a>
+                          </button>
+                        {% else %}
+                          <button class="btn btn-danger">
+                            <a href="view_tc_logs_details/{{reg_details[0]}}" class="hyperlink_text">FAIL</a>
+                          </button>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+             
+            </tbody>
+          </table>
+</div>
+
+{% endblock %}
