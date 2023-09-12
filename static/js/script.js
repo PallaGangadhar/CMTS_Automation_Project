@@ -96,20 +96,20 @@ $(document).ready(function() {
             {name: no_run +' No Run',y: no_run_per,color:"#2E2EFF"},
         ], true);
 
-        names=testcase_names.toString().split(',')[iter]
-        iter = iter + 1
-        data={'names':names,'r_id':msg.r_id,'pass':msg.pass_tc,'fail':msg.fail_tc}
-        $.ajax({  
-            url:"/add_regression_logs",  
-            method:"POST",  
-            Accept : "application/json",
-            contentType: "application/json",
-            dataType: "json",
-            data:JSON.stringify(data),  
-            success:function(){  
-                console.log('success=========')
-            }  
-        }); 
+        // names=testcase_names.toString().split(',')[iter]
+        // iter = iter + 1
+        // data={'names':names,'r_id':msg.r_id,'pass':msg.pass_tc,'fail':msg.fail_tc}
+        // $.ajax({  
+        //     url:"/add_regression_logs",  
+        //     method:"POST",  
+        //     Accept : "application/json",
+        //     contentType: "application/json",
+        //     dataType: "json",
+        //     data:JSON.stringify(data),  
+        //     success:function(){  
+        //         console.log('success=========')
+        //     }  
+        // }); 
 
         if (total == total_tc_selected){
             $('#stop').prop('disabled', true);
@@ -207,7 +207,7 @@ function removeDuplicates(arr) {
 function select_testcases(){
     var modules = [];
     var check_module_id ="";   
-  
+    $("#tc_select").css('display','none');
     $("input:checkbox[name='modules[]']:checked").each(function(){    
         modules.push($(this).attr("id"));  
         check_module_id =   $(this).attr("id");		
@@ -220,6 +220,7 @@ function select_testcases(){
         module_id_arr.push(module_id)
 
         if ($("#module_"+module_id).is(":checked") == true){
+            // alert('hii')
             $("#show_module_"+module_id).css('display','block');
             $("#tc_select").css('display','block');
         }
@@ -227,10 +228,7 @@ function select_testcases(){
     }
     $("input:checkbox[name='modules[]']:not(:checked)").each(function(){   
         unchecked_module = $(this).attr("id");
-        
         $("#show_"+unchecked_module).css('display','none');
-        $("#tc_select").css('display','none');
-        delete module_id_arr[unchecked_module];
         
     });
     
@@ -302,6 +300,7 @@ function run_tc(div_id){
                     
                 }  
             }); 
+           
             
         }   
     }

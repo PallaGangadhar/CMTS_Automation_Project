@@ -10,18 +10,30 @@ app.secret_key = 'super secret key'
 
 socketio = SocketIO(app, async_mode=async_mode)
 
+
+
+
 def background_thread(data):
     socketio.emit('my_response',
                     {'data': str(data)})
 
 
-
 def send_chart_details(data):
     pass_tc = data.get('pass')
     fail_tc = data.get('fail')
-    r_id = data.get('r_id')
-    update_regression(pass_tc, fail_tc, r_id)
-    socketio.emit('charts_details',{'pass_tc':pass_tc, 'fail_tc':fail_tc,'r_id':r_id})
+    # curr,conn=db_connection()
+    # curr.execute(f'SELECT * FROM regression WHERE regression_id={reg_id}')
+    # query_data=curr.fetchone()
+    # print("Query data==", query_data)
+    # pass_count=query_data[2]
+    # fail_count=query_data[3]
+    # print("Pass count===", pass_count)
+    # print("Fail count===", fail_count)
+    # conn.commit()
+    # curr.close().
+    # conn.close()
+    update_regression(pass_tc, fail_tc, reg_id)
+    socketio.emit('charts_details',{'pass_tc':pass_tc, 'fail_tc':fail_tc,'r_id':reg_id})
 
 
 @app.route('/', methods=['GET','POST'])
@@ -30,15 +42,20 @@ def index():
 
 @app.route('/logs', methods=['GET','POST'])
 def logs():
+
     if request.method == "POST":
         regression_name = request.form.get('regression_name')
         total_tc_selected = request.form.get('total_tc_selected')
-        r_id=add_regression(regression_name, total_tc_selected)
-        # r_id='0'
+        print("total tc selected===", total_tc_selected)
+       
+        global reg_id
+        reg_id=add_regression(regression_name, total_tc_selected)
         tc = request.form.get('data')
         for tc_name in tc.split(','):
-            eval(tc_name + "("+r_id+")")
-        
+
+            eval(tc_name + "()")
+           
+        call_after_execution(reg_id)
     return render_template('logs.html')
 
 @app.route('/i_cmts', methods=['GET','POST'])
@@ -85,6 +102,7 @@ def stop():
 def add_regression_logs():
     if request.method == "POST":
         response=request.json
+        response['r_id']=reg_id
         add_regression_details(response)
     return Response({'msg':''})
 
@@ -102,12 +120,16 @@ def view_regression_details():
 @app.route("/view_tc_logs_details/<int:reg_id>", methods=['GET','POST'])
 def view_tc_logs_details(reg_id):
     curr,conn=db_connection()
+    # curr.execute(f'SELECT regression_logs_details.*,regression.summary_path FROM regression_logs_details,regression WHERE regression_logs_details.regression_id={reg_id} and regression.regression_id=regression_logs_details.regression_id')
     curr.execute(f'SELECT * FROM regression_logs_details WHERE regression_id={reg_id}')
     tc_logs_details=curr.fetchall()
+    curr.execute(f"SELECT summary_path FROM regression WHERE regression_id={reg_id}")
+    summary_path=curr.fetchone()
     conn.commit()
     curr.close()
     conn.close()
-    return render_template('view_tc_logs_details.html',tc_logs_details=tc_logs_details)
+    return render_template('view_tc_logs_details.html',tc_logs_details=tc_logs_details,summary_path=summary_path)
+
 
 
 if __name__ == '__main__':

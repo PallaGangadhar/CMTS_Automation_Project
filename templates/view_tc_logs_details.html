@@ -3,12 +3,18 @@
 
 <h1>TC logs detail Page</h1>
 
-<div class="container">
+<div class="container mt-2">
+  <!-- <button class="btn btn-primary"><a href="{{summary_path.0}}" class="hyperlink_text" target="_blank">View Logs</a></button> -->
+  <button class="btn btn-primary"><a href="../static/files/{{summary_path.0}}" class="hyperlink_text" target="_blank">View Summary Logs</a></button>
         <table class="table table-bordered mt-2 table_border" id="tc_report">
             <thead>
               <tr>
+                <th scope="col" class="td_text_center">Testcase No</th>
                 <th scope="col" class="td_text_center">Testcase Name</th>
+                <th scope="col" class="td_text_center" >Failed In</th>
+                <th scope="col" class="td_text_center" >Execution Time</th>
                 <th scope="col" class="td_text_center" >Status</th>
+                <th scope="col" class="td_text_center" >Action</th>
                 
               </tr>
             </thead>
@@ -16,19 +22,23 @@
                 {% for log_details in tc_logs_details %}
                 <tr>
                     <td class="td_text_center">{{log_details[2]}}</td>
-                  
+                    <td class="td_text_center">{{log_details[3]}}</td>
+                    <td class="td_text_center">{{log_details[5]}}</td>
+                    <td class="td_text_center">{{log_details[6]}}</td>
+                    
                     <td class="td_text_center">
-                      {% if log_details[3] == 'PASS' %}
-                          <button class="btn btn-success">
-                           PASS
-                          </button>
-                        {% else %}
-                          <button class="btn btn-danger">
-                            FAIL
-                          </button>
-                        {% endif %}
+                      {% if log_details[4] == 'PASS' %}
+                      <button class="btn btn-success">
+                        PASS
+                      </button>
+                      {% else %}
+                      <button class="btn btn-danger">
+                        FAIL
+                      </button>
+                      {% endif %}
                     </td>
-
+                    <td class="td_text_center"><a href="../static/files/{{log_details[7]}}"  target="_blank">View Logs</a></td>
+                   
                 </tr>
                 {% endfor %}
              

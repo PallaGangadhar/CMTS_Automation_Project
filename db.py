@@ -1,26 +1,17 @@
 import psycopg2
-from os.path import join, dirname
-from dotenv import load_dotenv
-import os
-
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
-
-DB_USERNAME = os.environ.get("DB_USERNAME")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_NAME = os.environ.get("DB_NAME")
 
 def db_connection():
-    conn = psycopg2.connect(f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@localhost:5432/{DB_NAME}")
+    conn = psycopg2.connect("postgresql://postgres:postgres@localhost:5432/postgres")
     curr = conn.cursor()
     return curr, conn
+
 
 def add_regression(regression_name,total_tc_selected):
     curr, conn=db_connection()
     curr.execute(
         '''INSERT INTO regression \
-        (regression_name, pass_count, fail_count, no_run_count, total_count) VALUES (%s, %s, %s, %s,%s) RETURNING regression_id''',
-        (regression_name, 0, 0, 0,int(total_tc_selected)))
+        (regression_name, pass_count, fail_count, no_run_count, total_count,status) VALUES (%s, %s, %s, %s,%s,%s) RETURNING regression_id''',
+        (regression_name, 0, 0, 0,int(total_tc_selected),"In Progress"))
 
     r_id = curr.fetchone()
     conn.commit()
@@ -37,36 +28,48 @@ def update_regression(pass_tc,fail_tc,r_id):
     query_data=curr.fetchone()
     pass_count=query_data[2]
     fail_count=query_data[3]
+    no_run_count=query_data[4]
     total_count=query_data[5]
 
     pass_count+=pass_tc
     fail_count+=fail_tc
-    total_count = pass_count+fail_count
-    curr.execute(f'UPDATE regression SET pass_count={pass_count}, fail_count={fail_count}, total_count={total_count} WHERE regression_id={r_id}')
+    curr.execute(f'UPDATE regression SET pass_count={pass_count}, fail_count={fail_count} WHERE regression_id={r_id}')
+    
+    if int(total_count) == int(pass_count)+int(fail_count)+int(no_run_count):
+
+        curr.execute('''UPDATE regression SET status=%s WHERE regression_id=%s''',( "Completed", r_id))
+    
     conn.commit()
     curr.close()
     conn.close()
 
 
 def add_regression_details(response):
-    status_list=[]
-    status=None
-    names=response.get('names')
     r_id=response.get('r_id')
-    pass_tc=response.get('pass')
+    status=response.get('status')
+    fail_in=response.get('fail_in')
+    tc_no=str(response.get('tc_no'))
+    execution_time=response.get('execution_time')
+    testcase_name=response.get('testcase_name')
+    tc_logs_path=response.get('tc_logs_path')
     
-    status="PASS" if pass_tc == 1 else "FAIL"
-    status_list.append(status)
-    status = "FAIL" if "FAIL" in status_list else "PASS"
+    status=status.upper()
+    # status_list.append(status)
+    # status = "FAIL" if "FAIL" in status_list else "PASS"
     curr, conn=db_connection()
-    curr.execute('''INSERT INTO regression_logs_details(regression_id,testcase_name,status) VALUES (%s,%s,%s)''',(r_id,names,status) )
-    curr.execute('''UPDATE regression SET status=%s WHERE regression_id=%s''',( status, r_id))
+    curr.execute('''INSERT INTO regression_logs_details(regression_id,testcase_number,testcase_name,status, failed_in,execution_time,tc_logs_path) VALUES (%s,%s,%s,%s,%s,%s,%s)''',(r_id,tc_no,testcase_name,status, fail_in, execution_time,tc_logs_path) )
+    
     conn.commit()
     curr.close()
     conn.close()
 
     
-    
+def update_regression_summary_path(r_id, path):
+    curr, conn=db_connection()
+    curr.execute('''UPDATE regression SET summary_path=%s WHERE regression_id=%s''',( str(path), r_id))
+    conn.commit()
+    curr.close()
+    conn.close()
     
 
 # def insert()
@@ -116,10 +119,13 @@ def add_regression_details(response):
 # CREATE TABLE IF NOT EXISTS regression_logs_details(
 #     log_id serial,
 #     regression_id INT,
+#     testcase_number INT,
 #     testcase_name text,
 #     status varchar(1000),
+#     failed_in text,
+#     execution_time text,
+#     tc_logs_path text,
 #     date_added timestamp DEFAULT CURRENT_TIMESTAMP,
-
 #     CONSTRAINT fk_regression FOREIGN KEY(regression_id)
 #         REFERENCES regression(regression_id)
 # );
@@ -131,6 +137,7 @@ def add_regression_details(response):
 #     fail_count integer NOT NULL,
 #     no_run_count integer NOT NULL,
 #     total_count integer NOT NULL,
+#     summary_path text,
 #     status varchar(1000),
 #     date_added timestamp DEFAULT CURRENT_TIMESTAMP,
 #     PRIMARY KEY(regression_id)
