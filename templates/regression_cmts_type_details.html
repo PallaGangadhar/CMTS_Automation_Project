@@ -1,20 +1,5 @@
-{% extends 'base.html' %}
-{%block content%}
-
-<h1>Regression detail Page</h1>
-
-
-<div class="container">
-  
-  {% if regression_details %}
-  <div class="form-group">
-    <select name="cmts_type_dropdown form-control" id="cmts_type_dropdown">
-      <option name="" class="form-control">--SELECT--</option>
-        {% for type in c_type %}
-        <option name="{{type}}">{{type}}</option>
-        {% endfor %}
-      </select>
-    </div>
+{% if regression_details %}
+    
 
         <table class="table table-bordered mt-2 table_border" id="tc_report">
             <thead>
@@ -58,20 +43,3 @@
             <center><h2>No Regression Details Found...</h2></center>
            
             {% endif %}
-</div>
-<script>
-  
-$(document).ready(function(){
-    $('#cmts_type_dropdown').on('change', function() {
-        value = this.value;
-        $.ajax({
-          url:"/view_regression_details?cmts_type="+value,
-          method:"GET",
-          success:function(data){
-            $("#tc_report").html(data);
-          }
-        })
-      });
-});
-</script>
-{% endblock %}

@@ -5,13 +5,22 @@ def db_connection():
     curr = conn.cursor()
     return curr, conn
 
+# curr, conn=db_connection()
+# curr.execute("DELETE  FROM regression_logs_details")
+# curr.execute("DELETE  FROM regression")
+# conn.commit()
+# curr.close()
+# conn.close()
 
-def add_regression(regression_name,total_tc_selected):
+def add_regression(request):
     curr, conn=db_connection()
+    regression_name = request.form.get('regression_name')
+    total_tc_selected = request.form.get('total_tc_selected')
+    cmts_type = request.form.get('cmts_type')
     curr.execute(
         '''INSERT INTO regression \
-        (regression_name, pass_count, fail_count, no_run_count, total_count,status) VALUES (%s, %s, %s, %s,%s,%s) RETURNING regression_id''',
-        (regression_name, 0, 0, 0,int(total_tc_selected),"In Progress"))
+        (regression_name, pass_count, fail_count, no_run_count, total_count,status,cmts_type) VALUES (%s, %s, %s, %s,%s,%s,%s) RETURNING regression_id''',
+        (regression_name, 0, 0, 0,int(total_tc_selected),"In Progress", cmts_type))
 
     r_id = curr.fetchone()
     conn.commit()
@@ -139,6 +148,7 @@ def update_regression_summary_path(r_id, path):
 #     total_count integer NOT NULL,
 #     summary_path text,
 #     status varchar(1000),
+#     cmts_type varchar(1000),
 #     date_added timestamp DEFAULT CURRENT_TIMESTAMP,
 #     PRIMARY KEY(regression_id)
 

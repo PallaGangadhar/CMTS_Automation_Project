@@ -21,19 +21,22 @@ def background_thread(data):
 def send_chart_details(data):
     pass_tc = data.get('pass')
     fail_tc = data.get('fail')
-    # curr,conn=db_connection()
-    # curr.execute(f'SELECT * FROM regression WHERE regression_id={reg_id}')
-    # query_data=curr.fetchone()
-    # print("Query data==", query_data)
-    # pass_count=query_data[2]
-    # fail_count=query_data[3]
-    # print("Pass count===", pass_count)
-    # print("Fail count===", fail_count)
-    # conn.commit()
-    # curr.close().
-    # conn.close()
+    p=0
+    f=0
+
+    curr,conn=db_connection()
+    curr.execute(f'SELECT * FROM regression WHERE regression_id={reg_id}')
+    query_data=curr.fetchone()
+    pass_count=query_data[2]
+    fail_count=query_data[3]
+    total_count=query_data[5]
+    conn.commit()
+    curr.close()
+    conn.close()
+    p=int(pass_count)+pass_tc
+    f=int(fail_count)+fail_tc
     update_regression(pass_tc, fail_tc, reg_id)
-    socketio.emit('charts_details',{'pass_tc':pass_tc, 'fail_tc':fail_tc,'r_id':reg_id})
+    socketio.emit('charts_details',{'pass_tc':p, 'fail_tc':f,'r_id':reg_id,'total_count':total_count})
 
 
 @app.route('/', methods=['GET','POST'])
@@ -44,12 +47,8 @@ def index():
 def logs():
 
     if request.method == "POST":
-        regression_name = request.form.get('regression_name')
-        total_tc_selected = request.form.get('total_tc_selected')
-        print("total tc selected===", total_tc_selected)
-       
         global reg_id
-        reg_id=add_regression(regression_name, total_tc_selected)
+        reg_id=add_regression(request)
         tc = request.form.get('data')
         for tc_name in tc.split(','):
 
@@ -60,7 +59,12 @@ def logs():
 
 @app.route('/i_cmts', methods=['GET','POST'])
 def i_cmts():
+    
     return render_template('i_cmts.html')
+
+@app.route('/harmony', methods=['GET','POST'])
+def harmony():
+    return render_template('harmony.html')
 
 @app.route("/connect", methods=['GET','POST'])
 @socketio.event
@@ -74,14 +78,14 @@ def connect():
 
 @app.route("/charts", methods=['GET','POST'])
 @socketio.event
-def charts():
+def charts():    
     if request.method == "POST":
         data=request.json
         send_chart_details(data)
         return Response({'msg':"Hi"})
     else:
+        
         return render_template('charts.html')
-
 
 
 @socketio.on('disconnect')
@@ -110,12 +114,27 @@ def add_regression_logs():
 @app.route("/view_regression_details", methods=['GET','POST'])
 def view_regression_details():
     curr,conn=db_connection()
-    curr.execute('SELECT * FROM regression ORDER BY date_added DESC')
+    cmts_type = request.args.get('cmts_type')
+    if cmts_type != None:
+        cmts_type="'"+cmts_type+"'"
+        curr.execute(f"SELECT * FROM regression WHERE cmts_type="+cmts_type)
+    else:
+        curr.execute('SELECT * FROM regression ORDER BY date_added DESC')
+
     regression_details=curr.fetchall()
+    
+    curr.execute('SELECT cmts_type FROM regression')
+    c_type_curr=curr.fetchall()
+    c_type=[]
+    [c_type.append(t[0]) for t in c_type_curr if t[0] not in c_type]
+    
     conn.commit()
     curr.close()
     conn.close()
-    return render_template('regression_details.html',regression_details=regression_details)
+    if cmts_type != None:
+        return render_template('regression_cmts_type_details.html',regression_details=regression_details,c_type=c_type)
+    else:
+        return render_template('regression_details.html',regression_details=regression_details,c_type=c_type)
 
 @app.route("/view_tc_logs_details/<int:reg_id>", methods=['GET','POST'])
 def view_tc_logs_details(reg_id):

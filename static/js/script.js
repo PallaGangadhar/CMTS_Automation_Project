@@ -77,18 +77,20 @@ $(document).ready(function() {
         var fail_per = 0.0
         var no_run_per = 0.0
 
-        pass = pass + msg.pass_tc
-        fail = fail + msg.fail_tc
-        total = pass + fail
+        // pass = pass + msg.pass_tc
+        // fail = fail + msg.fail_tc
+        total = msg.pass_tc + msg.fail_tc
+        total_tc_selected=msg.total_count
         
-        pass_per = (pass/total_tc_selected)*100
-        fail_per = (fail/total_tc_selected)*100
+        pass_per = (msg.pass_tc/total_tc_selected)*100
+        fail_per = (msg.fail_tc/total_tc_selected)*100
         no_run = total_tc_selected - (total)
         no_run_per = (no_run/total_tc_selected)*100
         $('#total_tc_count').text(total_tc_selected);
-        $('#total_pass_count').text(pass);
-        $('#total_fail_count').text(fail);
+        $('#total_pass_count').text(msg.pass_tc);
+        $('#total_fail_count').text(msg.fail_tc);
         $('#no_run_count').text(no_run);
+        $('#tc_count b').text("Total TC Selected: "+total_tc_selected);
         
         chart.series[0].setData([
             {name: pass +' PASS',y: pass_per,color:"#00FF00"}, 
@@ -262,6 +264,7 @@ function close_window(div_id){
 }
 function run_tc(div_id){
     var text=$('#regression_name').val();
+    var cmts_type=$("input[name=cmts_type]").val()
     if(text==""){
         alert('Please enter regression name...')
     }
@@ -290,12 +293,12 @@ function run_tc(div_id){
             checkboxes_value = checkboxes_value.toString(); 
             testcase_names=testcase_names.toString();
             $('#stop').prop('disabled', false);
-            $('#run').prop('disabled', true);
+            $('#check_tc').prop('disabled', true);
             $('#tc_count b').text("Total TC Selected: "+total_tc_selected);
             $.ajax({  
                 url:"/logs",  
                 method:"POST",  
-                data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'testcase_names':testcase_names },  
+                data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'cmts_type':cmts_type },  
                 success:function(){  
                     
                 }  
@@ -306,5 +309,3 @@ function run_tc(div_id){
     }
     
 }
-
-
