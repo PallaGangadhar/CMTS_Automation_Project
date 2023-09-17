@@ -235,3 +235,7 @@ background-color: #3e8e41;
   color: white;
   text-decoration: none;
 }
+
+.regression_scroll_table{
+  height:450px; overflow:auto;
+}

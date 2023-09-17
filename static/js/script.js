@@ -186,6 +186,7 @@ $(function () {
 
     
 var checkboxes_value = []; 
+var uncheckboxes_value = []; 
 var module_id = "";
 var module_id_arr = []; 
 var testcase_names = [];
@@ -217,22 +218,30 @@ function select_testcases(){
     
     
 
+    
+    $("input:checkbox[name='modules[]']:not(:checked)").each(function(){   
+        unchecked_module = $(this).attr("id");
+        uncheckboxes_value.push($(this).attr("id"));
+        $("#show_"+unchecked_module).css('display','none');
+        
+    });
+
     for(let i=0.;i<modules.length;i++){
         module_id = modules[i].replace ( /[^\d.]/g, '' );
         module_id_arr.push(module_id)
 
         if ($("#module_"+module_id).is(":checked") == true){
             // alert('hii')
+            // console.log("===>",$("#module_"+module_id).is(":checked"))
+            // console.log("===>",modules[i])
             $("#show_module_"+module_id).css('display','block');
             $("#tc_select").css('display','block');
+            uncheckboxes_value=removeDuplicates(uncheckboxes_value)
+            remove_err_ele(uncheckboxes_value, modules[i])
+            console.log("uncheckbox value===>",uncheckboxes_value)
         }
         
     }
-    $("input:checkbox[name='modules[]']:not(:checked)").each(function(){   
-        unchecked_module = $(this).attr("id");
-        $("#show_"+unchecked_module).css('display','none');
-        
-    });
     
 }
 
@@ -270,6 +279,10 @@ function run_tc(div_id){
     }
     else{
         module_id_arr = removeDuplicates(module_id_arr)
+        for(let k=0;k<uncheckboxes_value.length;k++){
+            unchecked_module_id = uncheckboxes_value[k].replace ( /[^\d.]/g, '' );
+            remove_err_ele(module_id_arr, unchecked_module_id)
+        }
         for(let m=0;m<module_id_arr.length;m++){
         
         $("input:checkbox[name='testcase_module_"+module_id_arr[m]+"[]']").each(function(){  
@@ -295,17 +308,28 @@ function run_tc(div_id){
             $('#stop').prop('disabled', false);
             $('#check_tc').prop('disabled', true);
             $('#tc_count b').text("Total TC Selected: "+total_tc_selected);
-            $.ajax({  
-                url:"/logs",  
-                method:"POST",  
-                data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'cmts_type':cmts_type },  
-                success:function(){  
+            $('#total_tc_count').text(total_tc_selected);
+            
+            // $.ajax({  
+            //     url:"/logs",  
+            //     method:"POST",  
+            //     data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'cmts_type':cmts_type },  
+            //     success:function(){  
                     
-                }  
-            }); 
+            //     }  
+            // }); 
            
             
         }   
     }
     
+}
+
+function remove_err_ele(array, val){
+    const index = array.indexOf(val);
+    if (index > -1){
+        array.splice(index, 1)
+    }
+    console.log(array)
+    return array;
 }

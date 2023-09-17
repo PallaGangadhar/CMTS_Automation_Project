@@ -13,6 +13,7 @@ socketio = SocketIO(app, async_mode=async_mode)
 
 
 
+
 def background_thread(data):
     socketio.emit('my_response',
                     {'data': str(data)})
@@ -23,16 +24,7 @@ def send_chart_details(data):
     fail_tc = data.get('fail')
     p=0
     f=0
-
-    curr,conn=db_connection()
-    curr.execute(f'SELECT * FROM regression WHERE regression_id={reg_id}')
-    query_data=curr.fetchone()
-    pass_count=query_data[2]
-    fail_count=query_data[3]
-    total_count=query_data[5]
-    conn.commit()
-    curr.close()
-    conn.close()
+    pass_count, fail_count, total_count,no_run = select_query_to_get_count_details(reg_id)
     p=int(pass_count)+pass_tc
     f=int(fail_count)+fail_tc
     update_regression(pass_tc, fail_tc, reg_id)
@@ -84,8 +76,8 @@ def charts():
         send_chart_details(data)
         return Response({'msg':"Hi"})
     else:
-        
         return render_template('charts.html')
+
 
 
 @socketio.on('disconnect')
@@ -115,7 +107,7 @@ def add_regression_logs():
 def view_regression_details():
     curr,conn=db_connection()
     cmts_type = request.args.get('cmts_type')
-    if cmts_type != None:
+    if cmts_type != None and cmts_type != "":
         cmts_type="'"+cmts_type+"'"
         curr.execute(f"SELECT * FROM regression WHERE cmts_type="+cmts_type)
     else:
@@ -153,3 +145,5 @@ def view_tc_logs_details(reg_id):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
+
+

@@ -3,8 +3,9 @@ import psycopg2
 def db_connection():
     conn = psycopg2.connect("postgresql://postgres:postgres@localhost:5432/postgres")
     curr = conn.cursor()
+    print(curr)
     return curr, conn
-
+# db_connection()
 # curr, conn=db_connection()
 # curr.execute("DELETE  FROM regression_logs_details")
 # curr.execute("DELETE  FROM regression")
@@ -35,6 +36,7 @@ def update_regression(pass_tc,fail_tc,r_id):
     curr, conn=db_connection()
     curr.execute(f'SELECT * FROM regression WHERE regression_id={r_id}')
     query_data=curr.fetchone()
+    print(query_data)
     pass_count=query_data[2]
     fail_count=query_data[3]
     no_run_count=query_data[4]
@@ -81,6 +83,18 @@ def update_regression_summary_path(r_id, path):
     conn.close()
     
 
+def select_query_to_get_count_details(reg_id):
+    curr,conn=db_connection()
+    curr.execute(f"SELECT * FROM regression WHERE regression_id={reg_id}")
+    query_data=curr.fetchone()
+    pass_count=query_data[2]
+    fail_count=query_data[3]
+    no_run=query_data[4]
+    total_count=query_data[5]
+    conn.commit()
+    curr.close()
+    conn.close()
+    return pass_count, fail_count, total_count,no_run
 # def insert()
 # curr.execute('CREATE TABLE IF NOT EXISTS regression (regression_id INT,'
 #                                  'regression_name varchar (1000) NOT NULL,'
