@@ -231,9 +231,6 @@ function select_testcases(){
         module_id_arr.push(module_id)
 
         if ($("#module_"+module_id).is(":checked") == true){
-            // alert('hii')
-            // console.log("===>",$("#module_"+module_id).is(":checked"))
-            // console.log("===>",modules[i])
             $("#show_module_"+module_id).css('display','block');
             $("#tc_select").css('display','block');
             uncheckboxes_value=removeDuplicates(uncheckboxes_value)
@@ -310,14 +307,14 @@ function run_tc(div_id){
             $('#tc_count b').text("Total TC Selected: "+total_tc_selected);
             $('#total_tc_count').text(total_tc_selected);
             
-            // $.ajax({  
-            //     url:"/logs",  
-            //     method:"POST",  
-            //     data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'cmts_type':cmts_type },  
-            //     success:function(){  
+            $.ajax({  
+                url:"/logs",  
+                method:"POST",  
+                data:{ "data":checkboxes_value,'regression_name':text,'total_tc_selected':total_tc_selected,'cmts_type':cmts_type },  
+                success:function(){  
                     
-            //     }  
-            // }); 
+                }  
+            }); 
            
             
         }   
