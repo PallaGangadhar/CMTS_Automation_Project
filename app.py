@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, request, Response
+from flask import Flask, render_template, request, Response, redirect
 from flask_socketio import SocketIO, emit
 import os
 from test_code import *
@@ -142,6 +142,16 @@ def view_tc_logs_details(reg_id):
     return render_template('view_tc_logs_details.html',tc_logs_details=tc_logs_details,summary_path=summary_path)
 
 
+@app.route('/delete_regression/<int:id>', methods=['GET','POST'])
+def delete_regression(id):
+    if request.method == "POST":
+        curr,conn=db_connection()
+        curr.execute(f'DELETE FROM regression_logs_details WHERE regression_id={id}')
+        curr.execute(f'DELETE FROM regression WHERE regression_id={id}')
+        conn.commit()
+        curr.close()
+        conn.close()
+        return redirect("/view_regression_details")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

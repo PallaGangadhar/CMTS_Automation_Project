@@ -4,6 +4,8 @@
 <h1>Regression detail Page</h1>
 
 
+
+
 <div class="container regression_scroll_table">
   
   {% if regression_details %}
@@ -25,7 +27,7 @@
                 <th scope="col" class="td_text_center">No Run TC</th>
                 <th scope="col" class="td_text_center">Total TC</th>
                 <th scope="col" class="td_text_center">Status</th>
-                <th scope="col" class="td_text_center">Action</th>
+                <th scope="col" class="td_text_center" colspan="2">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -46,7 +48,12 @@
                         {% endif %}
                     </td>
                     <td class="td_text_center"> <a href="view_tc_logs_details/{{reg_details[0]}}" class="">View TC details</a></td>
+                    <td class="td_text_center delete_icon"> 
+                      <button type="button" class="btn bg-transparent open-ConfirmationDialog" data-bs-toggle="modal" data-id="{{reg_details[0]}}" data-bs-target="#myModal">
+                        <i class="fa fa-trash-o"></i>
 
+                      </button>
+                    </td>
                 </tr>
                 {% endfor %}
                 
@@ -57,6 +64,37 @@
            
             {% endif %}
 </div>
+
+
+<!-- The Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Are you sure you want to delete?</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        Once you delete it, it will not revert back..
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <form name="" id="delete" method="post">
+
+          <button type="submit" class="btn btn-success" data-bs-dismiss="modal" id="delete_regression">Yes</button>
+        </form>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
   
 $(document).ready(function(){
@@ -71,5 +109,13 @@ $(document).ready(function(){
         })
       });
 });
+
+$(document).on("click", ".open-ConfirmationDialog", function () {
+    var pk = $(this).data('id');
+    $("#delete_regression").click(function(){
+      $("#delete").attr("action", "/delete_regression/" + pk);
+    }); 
+});
+
 </script>
 {% endblock %}

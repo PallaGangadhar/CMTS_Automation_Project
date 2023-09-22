@@ -239,3 +239,7 @@ background-color: #3e8e41;
 .regression_scroll_table{
   height:450px; overflow:auto;
 }
+
+.delete_icon button{
+  font-size:24px;color:red;
+}
