@@ -6,7 +6,10 @@
 <div class="container mt-2 regression_scroll_table">
   <!-- <button class="btn btn-primary"><a href="{{summary_path.0}}" class="hyperlink_text" target="_blank">View Logs</a></button> -->
   <button class="btn btn-primary"><a href="../static/files/{{summary_path.0}}" class="hyperlink_text" target="_blank">View Summary Logs</a></button>
-        <table class="table table-bordered mt-2 table_border" id="tc_report">
+  <button class="btn btn-primary"><a href="../send_mail/{{reg_id}}" class="hyperlink_text" target="_blank">Send Mail</a></button>
+  <!-- <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mail_modal">Send Mail</button> -->
+  
+  <table class="table table-bordered mt-2 table_border" id="tc_report">
             <thead>
               <tr>
                 <th scope="col" class="td_text_center">Testcase No</th>
@@ -43,7 +46,7 @@
                 {% endfor %}
              
             </tbody>
-          </table>
+  </table>
 </div>
 
 

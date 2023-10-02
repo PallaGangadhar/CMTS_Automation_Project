@@ -11,9 +11,6 @@ app.secret_key = 'super secret key'
 socketio = SocketIO(app, async_mode=async_mode)
 
 
-
-
-
 def background_thread(data):
     socketio.emit('my_response',
                     {'data': str(data)})
@@ -139,7 +136,7 @@ def view_tc_logs_details(reg_id):
     conn.commit()
     curr.close()
     conn.close()
-    return render_template('view_tc_logs_details.html',tc_logs_details=tc_logs_details,summary_path=summary_path)
+    return render_template('view_tc_logs_details.html',tc_logs_details=tc_logs_details,summary_path=summary_path,reg_id=reg_id)
 
 
 @app.route('/delete_regression/<int:id>', methods=['GET','POST'])
@@ -152,6 +149,24 @@ def delete_regression(id):
         curr.close()
         conn.close()
         return redirect("/view_regression_details")
+
+@app.route('/send_mail/<int:reg_id>', methods=['GET','POST'])
+def send_mail(reg_id): 
+    curr,conn=db_connection()
+    curr.execute(f'SELECT summary_path FROM regression WHERE regression_id={reg_id}')
+    summary_path = curr.fetchone()
+
+    with open(f"static/files/{summary_path[0]}","r") as f:
+        message=f.readlines()
+    message_text=""
+    for data in message:
+        message_text+=data+"\n"
+
+    conn.commit()
+    curr.close()
+    conn.close()
+    os.system("python send_mail.py")
+    return redirect("/")
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)

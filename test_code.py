@@ -104,7 +104,7 @@ def TC_6():
 
 
 def call_after_execution(r_id):
-    file = open("D:\Ganga\Arjun_Project\static\\files\\abc.txt", "w")
+    file = open("static\\files\\abc.txt", "w")
     file.truncate(0)
     file.write("\n********** SUMMARY **********")
     print(tab.draw())

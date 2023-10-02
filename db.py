@@ -1,9 +1,19 @@
 import psycopg2
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+DB_NAME=os.environ.get('DB_NAME')
+POSTGRES_USERNAME=os.environ.get('POSTGRES_USERNAME')
+POSTGRES_PASSWORD=os.environ.get('POSTGRES_PASSWORD')
+POSTGRES_HOSTNAME=os.environ.get('POSTGRES_HOSTNAME')
+POSTGRES_PORT=os.environ.get('POSTGRES_PORT')
 
 def db_connection():
-    conn = psycopg2.connect("postgresql://postgres:postgres@localhost:5432/postgres")
+    conn = psycopg2.connect(f"postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOSTNAME}:{POSTGRES_PORT}/{DB_NAME}")
     curr = conn.cursor()
-    print(curr)
     return curr, conn
 # db_connection()
 # curr, conn=db_connection()
