@@ -322,6 +322,9 @@ function run_tc(div_id){
     
 }
 
+
+
+
 function remove_err_ele(array, val){
     const index = array.indexOf(val);
     if (index > -1){
@@ -330,3 +333,5 @@ function remove_err_ele(array, val){
     console.log(array)
     return array;
 }
+
+

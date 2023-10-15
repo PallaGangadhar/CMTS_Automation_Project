@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 import os
 from test_code import *
 from db import *
+from send_mail import mail_box
 async_mode = None
 
 app = Flask(__name__)
@@ -165,7 +166,8 @@ def send_mail(reg_id):
     conn.commit()
     curr.close()
     conn.close()
-    os.system("python send_mail.py")
+    mail_box(message)
+    # os.system("python send_mail.py")
     return redirect("/")
 
 if __name__ == '__main__':
